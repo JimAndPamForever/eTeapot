@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Teapot Messenger</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 450px; margin: 40px auto; padding: 20px; }
+    .hidden { display: none; }
+    .box { border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin: 15px 0; background: #f9f9f9; }
+    button { cursor: pointer; padding: 8px 16px; background: #0066cc; color: #fff; border: none; border-radius: 4px; }
+    textarea { width: 100%; box-sizing: border-box; border-radius: 4px; padding: 8px; }
+  </style>
+</head>
+<body>
+  <h2 id="headerTitle">Teapot Messenger</h2>
+  <p id="status">Connecting...</p>
+
+  <!-- Inbox -->
+  <div class="box">
+    <strong>Inbox:</strong>
+    <p id="messageDisplay">The teapot is empty now</p>
+    <button id="readBtn" class="hidden">I have read this message</button>
+  </div>
+
+  <!-- Compose -->
+  <div id="composeArea" class="box hidden">
+    <strong>Write a Message:</strong><br><br>
+    <textarea id="msgInput" rows="3" placeholder="Type your message here..."></textarea><br><br>
+    <button id="sendBtn">Send Message</button>
+  </div>
+
+  <script>
+    const role = window.location.pathname.replace('/', '');
+    const otherRole = role === 'PamSays' ? 'JimSays' : 'PamSays';
+
+    const headerTitle = document.getElementById('headerTitle');
+    const statusEl = document.getElementById('status');
+    const messageDisplay = document.getElementById('messageDisplay');
+    const readBtn = document.getElementById('readBtn');
+    const composeArea = document.getElementById('composeArea');
+    const sendBtn = document.getElementById('sendBtn');
+    const msgInput = document.getElementById('msgInput');
+
+    headerTitle.innerText = `Portal: ${role}`;
+
+    const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(`${protocol}//${location.host}`);
+
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ type: 'REGISTER', role }));
+    };
+
+    ws.onmessage = (event) => {
+      const state = JSON.parse(event.data);
+
+      if (state.type === 'STATE_UPDATE') {
+        // Inbox Display Logic
+        if (state.hasUnreadMessage) {
+          messageDisplay.innerText = state.messageText;
+          readBtn.classList.remove('hidden');
+          statusEl.innerText = "Status: You have a new unread message!";
+        } else {
+          messageDisplay.innerText = "The teapot is empty now";
+          readBtn.classList.add('hidden');
+        }
+
+        // Compose Display Logic
+        if (state.isMyTurnToCompose) {
+          statusEl.innerText = "Status: It is your turn to send a message.";
+          composeArea.classList.remove('hidden');
+        } else if (!state.hasUnreadMessage) {
+          statusEl.innerText = `Status: Waiting for ${otherRole}...`;
+          composeArea.classList.add('hidden');
+        } else {
+          composeArea.classList.add('hidden');
+        }
+      }
+    };
+
+    readBtn.onclick = () => {
+      ws.send(JSON.stringify({ type: 'READ_MESSAGE' }));
+    };
+
+    sendBtn.onclick = () => {
+      const text = msgInput.value.trim();
+      if (!text) return;
+
+      ws.send(JSON.stringify({ type: 'SEND_MESSAGE', text }));
+      msgInput.value = '';
+    };
+  </script>
+</body>
+</html>

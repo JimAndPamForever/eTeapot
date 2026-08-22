@@ -1,0 +1,13 @@
+{
+  "name": "teapot",
+  "version": "1.0.0",
+  "description": "A minimal two-person turn-based messenger.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "ws": "^8.17.0"
+  }
+}
