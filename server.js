@@ -9,7 +9,7 @@ const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 
 // Configuration
-const GOOGLE_DRIVE_FILE_ID = process.env.GOOGLE_DRIVE_FILE_ID || 'YOUR_GOOGLE_DRIVE_FILE_ID_HERE';
+const GOOGLE_DRIVE_FILE_ID = process.env.GOOGLE_DRIVE_FILE_ID || '17XyvVz55sP74U7UKsITL2dDNGTLkIcTc';
 const KEY_FILE_PATH = path.join(__dirname, 'service-account.json');
 
 // Google Drive Auth Setup
