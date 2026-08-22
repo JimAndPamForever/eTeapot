@@ -24,7 +24,7 @@ const DEFAULT_INITIAL_STATE = {
   currentTurn: 'JimSays',
   pendingMessage: {
     sender: 'JimSays',
-    text: 'This is Jim's new favourite place'
+    text: 'Jim loves Pam'
   }
 };
 
